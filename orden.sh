@@ -58,8 +58,6 @@ echo "[2/4] Modificando RenLocalizer.sh..."
 
 # Modify RenLocalizer.sh to use system Python without venv
 if [ -f "RenLocalizer.sh" ]; then
-    cp RenLocalizer.sh RenLocalizer.sh.bak
-    # Replace the source checkout function to use system Python directly
     sed -i 's|python3 -m venv "$VENV_DIR"|# venv disabled|g' RenLocalizer.sh
     sed -i 's|source "$VENV_DIR/bin/activate"|# venv disabled|g' RenLocalizer.sh
     sed -i 's|pip install|pip install|g' RenLocalizer.sh
@@ -71,13 +69,8 @@ echo "[3/4] Modificando run.py..."
 
 # Modify run.py to remove venv dependency
 if grep -q "venv\|virtualenv\|\.venv" run.py 2>/dev/null; then
-    # Backup original
-    cp run.py run.py.bak
-    # Remove venv detection and activation code
     sed -i '/venv/d; /virtualenv/d; /\.venv/d; /VIRTUAL_ENV/d; /pyvenv/d' run.py
-    echo "  - Removido codigo de venv de run.py"
-else
-    echo "  - No se encontro codigo de venv en run.py"
+    echo "  - Modificado para usar Python del sistema"
 fi
 
 echo ""
@@ -85,17 +78,23 @@ echo "[4/4] Modificando run_cli.py..."
 
 # Modify run_cli.py to remove venv dependency
 if grep -q "venv\|virtualenv\|\.venv" run_cli.py 2>/dev/null; then
-    # Backup original
-    cp run_cli.py run_cli.py.bak
-    # Remove venv detection and activation code
     sed -i '/venv/d; /virtualenv/d; /\.venv/d; /VIRTUAL_ENV/d; /pyvenv/d' run_cli.py
-    echo "  - Removido codigo de venv de run_cli.py"
-else
-    echo "  - No se encontro codigo de venv en run_cli.py"
+    echo "  - Modificado para usar Python del sistema"
 fi
 
 echo ""
-echo "[4/4] Verificando instalacion de Python del sistema..."
+echo "[5/5] Descargando icon.png..."
+
+# Download icon.png from GitHub
+ICON_URL="https://raw.githubusercontent.com/Iskander-mlander/OrdenRLLOT/main/icon.png"
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL -o icon.png "$ICON_URL" && echo "  - Icono descargado" || echo "  - Error al descargar icono"
+elif command -v wget >/dev/null 2>&1; then
+    wget -q -O icon.png "$ICON_URL" && echo "  - Icono descargado" || echo "  - Error al descargar icono"
+fi
+
+echo ""
+echo "[6/6] Verificando instalacion de Python del sistema..."
 
 # Verify system Python has required packages
 echo "  - Version de Python: $(python3 --version)"
